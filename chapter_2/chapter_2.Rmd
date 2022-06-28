@@ -1,0 +1,398 @@
+---
+title: 'Chapter 2: Statistical Learning'
+author: "Broderick Turner"
+date: '2022-06-04'
+output: html_document
+---
+
+```{r}
+library(ISLR2)
+```
+
+
+### Conceptual
+
+1.  For each of parts (a) through (d), indicate whether we would generally expect the performance of a flexible statistical learning method to be better or worse than an inflexible method. Justify your answer.
+
+    a)  The sample size *n* is extremely large, and the number of predictors *p* is small.
+    
+        __*Better. With a really large sample, we'd expect a flexible learning method to be able to more accurately find patterns in the data.*__
+        
+    b)  The number of predictors *p* is extremely large, and the number of observations *n* is small.
+    
+        __*Worse. With a small sample size, the worry is that such algorithms might overfit to the data.*__
+        
+    c)  The relationship between the predictors and response is highly non-linear.
+    
+        __*Better. Given the non-linear predictors-to-response relationship, we would expect an inflexible method (such as linear regression) to yield poor results.*__
+        
+    d)  The variance of the error terms, i.e. $\sigma^2 = Var(\epsilon)$, is extremely high.
+    
+        __*Worse. The fear is that a very flexible model might overfit to the variance.*__
+
+2.  Explain whether each scenario is a classification or regression problem, and indicate whether we are most interested in inference or prediction. Finally, provide *n* and *p*.
+
+    a) We collect a set of data on the top 500 firms in the US. For each firm we record profit, number of employees, industry and the CEO salary. We are interested in understanding which factors affect CEO salary.
+    
+        __*Regression (target is a dallar amount for salary) where we're interested in inference. n = 500, p = 3.*__
+        
+    b) We are considering launching a new product and wish to know whether it will be a *success* or a *failure*. We collect data on 20 similar products that were previously launched. For each product we have recorded whether it was a success or failure, price charged for the product, marketing budget, competition price, and ten other variables.
+    
+        __*Classification (success or failure) where we are interested in prediction. n = 20, p = 13.*__
+        
+    c) We are interested in predicting the % change in the USD/Euro exchange rate in relation to the weekly changes in the world stock markets. Hence we collect weekly data for all of 2012. For each week we record the % change in the USD/Euro, the % change in the US market, the % change in the British market, and the % change in the German market.
+    
+        __*Regression (percentage change) where we are interested in prediction. n = 52, p = 3*__
+
+3.  We now revisit the bias-variance decomposition.
+
+    a) Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the model, and the y-axis should represent the values for each curve. There should be five curves. Be sure to label each one.
+    
+    b) Explain why each of the curves has the shape displayed in part (a).
+    
+    __*Bias should decrease monotonically with flexibility as these methods provide closer fits. This is similar with training error - the models should learn the training data increasingly well (and may likely overfit if not careful). Following this same logic, test error is concave upward. Generally, it will decrease with increasing flexibility until overfit, and at this point it will increase. Variance should increase monotonically, the inverse of bias. As flexibility increase, fitting to the noise will increase variance. Irreducible error is a constant. Test error cannot be lower than this bound by definition.*__
+
+4.  You will now think of some real-life applications for statistical learning.
+
+    a) Describe three real-life applications in which classification might be useful. Describe the response, as well as the predictors. Is the goal of each application inference or prediction? Explain your answer.
+    
+        1. __*Spam detection, where the response is ham or spam and the predictors are the text of the email, including subject and body. We are interested in prediction.*__
+        2. __*We may be interested in understanding why customers churn. The response is if they will stay or leave (within some period of time), with predictors being indicators such as age, gender, frequency of use, and cost of items/products used. The goal is inference.*__
+        3. __*Oncology researchers may hope to better understanding which genes are associated with cancer. The response is if a person does or does not have cancer and genes are predictors. The goal is inference.*__
+        
+    b) Describe three real-life applications in which regression might be useful. Describe the response, as well as the predictors. Is the goal of each application inference or prediction? Explain your answer.
+    
+        1. __*Understanding which features of a home contribute most meaningfully to its market price. The predictors are features such as number of bedrooms, number of bathrooms, square footage, proximity to stores, etc. The response is the house's market price. The goal is inference.*__
+        2. __*Predicting a car's fuel efficiency. The predictors include car weight, age, brand, vehicle type, fuel type required, etc. and the response is the miles per gallon. The goal is prediction.*__
+        3. __*Predicting the temperature. Predictors include the humidity, air density, longitude, latitude, altitude, etc. the response the number of degrees (or kelvins perhaps). The goal is prediction.*__
+        
+    c) Describe three real-life applications in which cluster analysis might be useful.
+    
+        1. __*Customer segmentation for marketing purposes, where similarly grouped customers can be targeted in different ways.*__
+        2. __*Genetics, where similar grouped genes or DNA patterns may provide biological insights.*__
+        3. __*Clustering images that are not particularly interpretable to the human eyes could reveal patterns or similarities in the subjects.*__
+        
+5. What are the advantages and disadvantages of a very flexible (versus a less flexible) approach for regression or classification? Under what circumstances might a more flexible approach be preferred to a less flexible approach? When might a less flexible approach be preferred?
+
+    __*Generally, flexible approaches are more accurate in most cases (save for when data is truly linear) especially when there is a large sample size, and they are less restricted to having specific shapes or parameters. However, this flexibility often makes them harder to interpret. It can also lend itself to overfitting data if not careful. A more flexible approach may be preferred when we know the relationship between predictors and response is non-linear or a complex shape (or non-shape, even). They may also be preferred when accurate prediction is most important. A less flexible approach may be preferred when we care more about inference, and understanding which factors contribute most meaningfully to the response.*__
+    
+6. Describe the differences between a parametric and a non-parametric statistical learning approach. What are the advantages of a parametric approach to regression or classification (as opposed to a non-parametric approach)? What are its disadvantages?
+
+      __*Parametric models make an assumption about the shape of the machine learning function; non-parametric do not. As such, parametric models are highly interpretable since we understand the form we're forcing the model the have. They also may be more appropriate with a small sample size as non-parametric need large ones to more accurately map the data. Another disadvantage is parametric models are more rigid and bring the possibility that the estimate of the function is very different from the true function.*__
+      
+7. The table below provides a training data set containing six observations, three predictors, and one qualitative response variable. 
+
+    Obs. | $X_{1}$ | $X_{2}$ | $X_{3}$ | Y
+    :---:|:-------:|:-------:|:-------:|:---:
+    1 | 0 | 3 | 0 | Red
+    2 | 2 | 0 | 0 | Red
+    3 | 0 | 1 | 3 | Red
+    4 | 0 | 1 | 2 | Green
+    5 | -1 | 0 | 1 | Green
+    6 | 1 | 1 | 1 | Red
+Suppose we wish to use this data set to make a prediction for *Y* when $X_{1}=X_{2}=X_{3}=0$ using K-nearest neighbors.
+
+    a) Compute the Euclidean distance between each observation and the test point, $X_{1}=X_{2}=X_{3}=0$.
+    
+    ```{r}
+    test_point = c(0, 0, 0)
+    obs_1 = c(0, 3, 0)
+    obs_2 = c(2, 0, 0)
+    obs_3 = c(0, 1, 3)
+    obs_4 = c(0, 1, 2)
+    obs_5 = c(-1, 0, 1)
+    obs_6 = c(1, 1, 1)
+    mat <- rbind(test_point, obs_1, obs_2, obs_3, obs_4, obs_5, obs_6)
+    as.matrix(dist(mat, method="euclidean"))[, 1]
+    ```
+    
+    b) What is our prediction with K=1? Why?
+    
+        __*Green. The nearest neighbor is the $5^{th}$ observation.*__
+    
+    c) What is our prediction with K=3? Why?
+    
+        __*Red. Our nearest neighbors are observations 2, 5, and 6. The majority belongs to Red.*__
+    
+    d) If the Bayes decision boundary in this problem is highly non-linear, then would we expect the *best* value for *K* to be large or small? Why?
+    
+        __*We would expect K to be small. As K increases and more surrounding data points are taken into the account, the model becomes biased and as such the decision boundary becomes linear. A smaller K allows the flexibility for the model to find the shape of the estimating function.*__
+
+
+### Applied
+
+8. This exercise relates to the `College` data set, which can be found in the file `College.csv` on the book website. It contains a number of variables for 777 different universities and colleges in the US.
+
+    a) Use the `read.csv()` function to read the data into `R`. Call the loaded data `college`.
+    
+    ```{r}
+    college <- read.csv("College.csv")
+    ```
+    
+    b) Look at the data using the `View()` function. However it may be handy to have these names for later. 
+    
+    ```{r}
+    View(college)
+    ```
+        
+      You should notice that the first column is just the name of each university. We don't really want `R` to treat this as data. 
+        
+    ```{r}
+    rownames(college) <- college[, 1]
+    View(college)
+    ```
+      
+      However, we still need to eliminate the first column in the data where the names are being stored.
+      
+    ```{r}
+    college <- college[, -1]
+    View(college)
+    ```
+    
+    c) Use the `summary()` function to produce a numerical summary of the variables in the data set.
+        
+    ```{r}
+    summary(college)
+    ```
+
+      Use the `pairs()` function to produce a scatterplot matrix of the first ten columns or variables of the data.
+ 
+    ```{r}
+    college[, 1] = as.factor(college[, 1])
+    pairs(college[, 1:10])
+    ```
+
+      Use the `plot()` function to produce side-by-side boxplots of `Outstate` versus `Private`.
+      
+    ```{r}
+    attach(college)
+    plot(Private, Outstate, xlab='Private', ylab='Out-of-state Tuition')
+    ```
+    
+      Create a new qualitative variable, called `Elite`, by *binning* the `Top10perc` variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50%. Use the `summary()` function to see how many elite universities there are.
+      
+    ```{r}
+    Elite <- rep("No", nrow(college))
+    Elite[college$Top10perc > 50] <- "Yes"
+    Elite <- as.factor(Elite)
+    college <- data.frame(college, Elite)
+    summary(Elite)
+    ```
+    
+     Now use the `plot()` function to produce side-by-side boxplots of `Outstate` versus `Elite`.
+     
+    ```{r}
+    plot(Elite, Outstate, xlab="Elite", ylab="Out-of-state Tuition")
+    ```
+    
+    Use the `hist()` function to produce some histograms with differing numbers of bins for a few of the quantitative variables.
+    
+    ```{r}
+    par(mfrow=c(2,2))
+    hist(Apps, breaks=12)
+    hist(Grad.Rate, breaks=10)
+    hist(PhD, breaks=20)
+    hist(Room.Board)
+    ```
+    
+    Continue exploring the data, and provide a brief summary of what you discover.
+    
+    ```{r}
+    AcceptRate = Accept/Apps
+    EnrollRate = Enroll/Accept
+    college <- data.frame(college, AcceptRate, EnrollRate)
+    ```
+    
+    ```{r}
+    par(mfrow=c(3,2))
+    plot(Private, S.F.Ratio, xlab="Private", ylab="Student/Faculty Ratio")
+    plot(Private, Books, xlab="Private", ylab="Book Costs")
+    plot(Private, AcceptRate, xlab="Private", ylab="Acceptance Rate")
+    plot(Private, EnrollRate, xlab="Private", ylab="Enrollment Rate")
+    plot(Private, perc.alumni, xlab="Private", ylab="Percent of Alumni who Donate")
+    plot(Private, PhD, xlab="Private", ylab="Percent Faculty with PhD")
+    ```
+    
+    ```{r}
+    plot(Room.Board, Personal)
+    ```
+    
+    ```{r}
+    cor(Room.Board, Personal)
+    ```
+    
+    ```{r}
+    par(mfrow=c(1,2))
+    plot(Expend, PhD)
+    hist(Expend, breaks=20)
+    ```
+    ```{r}
+    median(Expend)
+    ```
+    
+        __*Some quick observations: Expenditures for individual students are distributed largely around the median with a large right tail, but of those schools with extremely high expenditures, most high faculty with doctorates. Personal costs for students don't have any correlation with the costs they paid for room and board. We see that private schools (compared to public) have more alumni who donate, lower student/faculty ratios, and lower enrollment rates. Median book costs are about the same though of schools with very expensive books, most tend to be private.*__
+
+9. This exercise involves the `Auto` data set. Make sure that the missing values have been removed from the data.
+
+    ```{r}
+    Auto <- read.table("Auto.data", header = T, na.strings = "?", stringsAsFactors = T)
+    Auto <- na.omit(Auto)
+    attach(Auto)
+    View(Auto)
+    ```
+
+    a) Which of the predictors are quantitative, and which are qualitative?
+    
+        __*Quantitative: mpg, displacement, horsepower, weight, acceleration.
+        Qualitative: cylinders (there are few unique values), year (depends on context), origin, name*__
+        
+    b) What is the range of each quantitative predictor?
+    
+    ```{r}
+    quant_cols <- c("mpg", "displacement", "horsepower", "weight", "acceleration")
+    apply(Auto[quant_cols], 2, range)
+    ```
+    
+    c) What is the mean and standard deviation of each quantitative predictor?
+    
+    ```{r}
+    colMeans(Auto[quant_cols])
+    ```
+    
+    ```{r}
+    apply(Auto[quant_cols], 2, sd)
+    ```
+    
+    d) Now remove the 10th through 85th observations. What is the range, mean, and standard devation of each predictor in the subset of data that remains?
+    
+    ```{r}
+    newAuto <- Auto[-10:-85, ]
+    apply(newAuto[quant_cols], 2, range)
+    colMeans(newAuto[quant_cols])
+    apply(newAuto[quant_cols], 2, sd)
+    ```
+    
+    e) Using the full dat set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among predictors. Comment on your findings.
+    
+    ```{r}
+    cat_cols <- c("cylinders", "year", "origin")
+    Auto[cat_cols] <- lapply(Auto[cat_cols], as.factor)
+    ```
+    
+    ```{r}
+    attach(Auto)
+    pairs(Auto)
+    ```
+    
+    ```{r}
+    par(mfrow = c(2, 2))
+    plot(cylinders, mpg)
+    plot(cylinders, displacement)
+    plot(cylinders, horsepower)
+    plot(cylinders, acceleration)
+    ```
+
+    ```{r}
+    par(mfrow = c(3, 2))
+    plot(year, horsepower)
+    plot(year, weight)
+    plot(horsepower, displacement)
+    plot(acceleration, displacement)
+    plot(mpg, acceleration)
+    plot(weight, acceleration, xlab="Weight", ylab="Acceleration")
+    ```
+    
+    ```{r}
+    par(mfrow = c(2, 2))
+    plot(origin, weight)
+    plot(origin, horsepower)
+    plot(origin, mpg)
+    plot(origin, acceleration)
+    ```
+    
+    ```{r}
+    cor(displacement, horsepower)
+    cor(weight, mpg)
+    cor(displacement, weight)
+    cor(horsepower, weight)
+    cor(mpg, displacement)
+    cor(mpg, horsepower)
+    ```
+    
+      __*We find strong positive correlation between displacement & horsepower, displacement & weight, horsepower & weight; a negative correlation between weight & mpg. Over time cars in the sample have gotten lower and lower horsepower and weight (roughly), but more efficient. Cars from origin 1 are heavier with more horsepower. Origin 3 cars have the best mpg.*__
+    
+    f) Suppose that we wish to predict gas mileage (`mpg`) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+    
+        __*See above for plots. It looks like weight, displacement, and horsepower are each correlated with mpg and would be useful in predicting this target. The plots between mpg and each of these variables all have fairly similar shapes.*__
+    
+10. This exercise involves the `Boston` housing data set.
+
+    a) To begin, load the `Boston` data set. How many rows are in this data set? How many columns? What do the rows and columns represent?
+    
+    ```{r}
+    attach(Boston)
+    dim(Boston)
+    ```
+    
+      __*Boston has 506 rows and 13 columns. Each row represents a suburb of Boston, with each column presenting housing data such as per capita crime rate and average number of homes per dwelling*__
+    
+    b) Make some pairwise scatterplots of the predictors (columns) in this data set. Describe your findings.
+    
+    ```{r}
+    pairs(Boston)
+    ```
+    
+      __*Looks to be a negative correlation between `lstat` & `medv`, `dis` & `nox`; positive correlation between `medv` & `rm`, `age` & `nox`. Most `crim` values are concentrated on the lower end of values, and higher values largely exist at the upper end of `age`.`rm` values are largely concentrated around the central values. Big gap in `rad` & `tax` values.*__
+    
+    c) Are any of the predictors associated with per capita crime rate? If so, explain the relationship?
+    
+        __*It looks like higher crime values largely exist when `chas` is 0; at the lower `dis`, `medv`, `zn` values; and at the higher `age`, `rad`, `tax` values.*__
+    
+    d) Do any of the census tracts of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios? Comment on the range of each predictor.
+    
+    ```{r}
+    apply(Boston[c("crim", "tax", "ptratio")], 2, range)
+    ```
+    
+    ```{r}
+    par(mfrow = c(3, 1))
+    hist(crim, breaks=10)
+    hist(tax, breaks=10)
+    hist(ptratio, breaks=10)
+    ```
+    
+      __*Crime rates are largely very low, but there are a handful above 50. Tax rates also stay toward lower values though a number exist over 600 with a big gap in the middle of the range. Most tracts have ptratios above 18 or so.*__
+    
+    e) How many of the census tracts in the data set bound the Charles river?
+    
+    ```{r}
+    sum(chas)
+    ```
+    
+    f) What is the median pupil-teacher ratio among the towns in this data set?
+    
+    ```{r}
+    median(ptratio)
+    ```
+    
+    g) Which census tract of Boston has lowest median value of owner-occupied homes? What are the values of the other predictors for that census tract, and how do those values compare to the overall ranges for those predictors? Comment on your findings.
+    
+    ```{r}
+    Boston_medv <- subset(Boston, medv == min(medv))
+    Boston_medv
+    ```
+    
+      __*There are two tracts tied for the lowest, 399 & 406. Compared to other tracts, they have the highest `age`, `tax`, `ptratio` and `rad`. They also have very low `dis` and `zn` values. It makes sense that the tracts with the lowest valued homes would also have the oldest homes with the worst property tax rates, and likely poor education given the large pupil-to-teacher ratios.*__
+    
+    h) In this data set, how many of the census tracts average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment on the census tracts that average more than eight rooms per dwelling.
+    ```{r}
+    sum(rm > 7)
+    sum(rm > 8)
+    ```
+    
+    ```{r}
+    Boston_rm <- subset(Boston, rm > 8)
+    pairs(Boston_rm)
+    ```
+    
+      __*There are 13 such tracts. They all appear to be have higher `age` and `medv` values. `crim` is very low, as are `dis` and `lstat`.*__
